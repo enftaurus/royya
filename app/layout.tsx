@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Royya Watch — Intelligence at the water\'s edge',
   description: 'Real-time monitoring and automation for healthier shrimp aquaculture.',
   generator: 'v0.app',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
       {
