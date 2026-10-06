@@ -163,10 +163,20 @@
   body {
     @apply bg-background text-foreground;
     font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f0;
   }
   button, a {
     -webkit-tap-highlight-color: transparent;
   }
+}
+
+.eyebrow {
+  color: #7b9b66;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 ::selection {
