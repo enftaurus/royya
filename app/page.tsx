@@ -44,7 +44,7 @@ export default function Page() {
       <nav className="absolute inset-x-0 top-0 z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
         <a href="#top" className="flex items-center gap-3" aria-label="Royya Watch home">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#d5f36d] text-[#193c36]"><Leaf size={19} strokeWidth={2.5} /></span>
-          <span className="text-sm font-bold tracking-[0.18em]">ROYYA WATCH</span>
+          <span className="text-sm font-bold tracking-[0.18em] text-[#d5f36d] drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)]">ROYYA WATCH</span>
         </a>
         <div className="hidden items-center gap-9 text-sm font-medium text-white/75 md:flex">
           <a href="#how-it-works" className="transition hover:text-white">How it works</a>
