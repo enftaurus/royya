@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Royya Watch — Intelligence at the water\'s edge',
+  title: 'Royya Watch — Intelligence at the water\'s edge computing',
   description: 'Real-time monitoring and automation for healthier shrimp aquaculture.',
   generator: 'v0.app',
   manifest: '/manifest.webmanifest',
