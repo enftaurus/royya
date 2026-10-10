@@ -16,6 +16,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { LineChart, type DataPoint } from '@/components/LineChart'
+import { MockDOSimulator } from '@/components/MockDOSimulator'
 import type { SystemData } from '@/lib/api'
 
 interface NerdOverviewProps {
@@ -25,6 +26,10 @@ interface NerdOverviewProps {
   tempHistory: DataPoint[]
   turbidityHistory: DataPoint[]
   onRefresh: () => void
+  mockDoEnabled?: boolean
+  mockDoValue?: number
+  onUpdateMockDo?: (enabled: boolean, value?: number) => Promise<void>
+  onUpdateMode?: (mode: 'AUTO' | 'MANUAL') => Promise<void>
 }
 
 export function NerdOverview({
@@ -34,6 +39,10 @@ export function NerdOverview({
   tempHistory,
   turbidityHistory,
   onRefresh,
+  mockDoEnabled = false,
+  mockDoValue = 5.5,
+  onUpdateMockDo,
+  onUpdateMode,
 }: NerdOverviewProps) {
   const gpio18State = data?.aerator_state === 'ON' ? 'HIGH (3.3V)' : 'LOW (0V)'
   const aeratorIsOn = data?.aerator_state === 'ON'
@@ -238,6 +247,18 @@ export function NerdOverview({
           </div>
         </div>
       </div>
+
+      {/* Mock DO Simulator / Testing Unit */}
+      {onUpdateMockDo && (
+        <MockDOSimulator
+          mockDoEnabled={mockDoEnabled}
+          mockDoValue={mockDoValue}
+          onUpdateMockDo={onUpdateMockDo}
+          mode={data?.mode || 'AUTO'}
+          aeratorState={data?.aerator_state || 'OFF'}
+          onUpdateMode={onUpdateMode}
+        />
+      )}
 
       {/* Dual Telemetry Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

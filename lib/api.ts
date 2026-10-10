@@ -13,11 +13,19 @@ export type SystemData = {
   dissolved_oxygen: number
   mode: 'AUTO' | 'MANUAL'
   aerator_state: 'ON' | 'OFF'
+  mock_do_enabled?: boolean
 }
 
 export type AeratorStateResponse = {
   mode: 'AUTO' | 'MANUAL'
   state: 'ON' | 'OFF'
+}
+
+export type MockDOResponse = {
+  mock_do_enabled: boolean
+  dissolved_oxygen: number
+  mode: 'AUTO' | 'MANUAL'
+  aerator_state: 'ON' | 'OFF'
 }
 
 export type HealthCheckResponse = {
@@ -130,4 +138,18 @@ export async function setManualAerator(state: 'ON' | 'OFF'): Promise<AeratorStat
  */
 export async function checkBackendHealth(): Promise<HealthCheckResponse> {
   return request<HealthCheckResponse>('/')
+}
+
+/**
+ * Configure mock DO override mode for simulation.
+ * POST /api/mock/do
+ */
+export async function setMockDO(
+  enabled: boolean,
+  dissolved_oxygen: number
+): Promise<MockDOResponse> {
+  return request<MockDOResponse>('/api/mock/do', {
+    method: 'POST',
+    body: JSON.stringify({ enabled, dissolved_oxygen }),
+  })
 }

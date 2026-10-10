@@ -17,6 +17,9 @@ export default function FarmerOverviewPage() {
     updateMode,
     updateManualAerator,
     language,
+    mockDoEnabled,
+    mockDoValue,
+    updateMockDo,
   } = useSharedTelemetry()
 
   return (
@@ -32,6 +35,9 @@ export default function FarmerOverviewPage() {
       onUpdateMode={updateMode}
       onUpdateManualAerator={updateManualAerator}
       language={language}
+      mockDoEnabled={mockDoEnabled}
+      mockDoValue={mockDoValue}
+      onUpdateMockDo={updateMockDo}
     />
   )
 }

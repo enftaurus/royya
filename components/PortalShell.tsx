@@ -15,6 +15,7 @@ interface PortalShellProps {
   onManualRefresh?: () => void
   language?: 'EN' | 'తెలుగు'
   onLanguageToggle?: () => void
+  mockDoEnabled?: boolean
 }
 
 interface NavItem {
@@ -58,6 +59,7 @@ export function PortalShell({
   onManualRefresh,
   language = 'EN',
   onLanguageToggle,
+  mockDoEnabled = false,
 }: PortalShellProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -151,6 +153,18 @@ export function PortalShell({
               </span>
             )}
           </div>
+
+          {/* Mock DO indicator badge */}
+          {mockDoEnabled && (
+            <div
+              className="flex items-center gap-1.5 rounded-full bg-[#f3e8ff] border border-[#d8b4fe] px-2.5 py-1 text-xs font-black text-[#7e22ce] animate-pulse"
+              title="DO Slider Simulation Active — Overwriting ML model prediction"
+            >
+              <span>●</span>
+              <span className="hidden sm:inline">MOCK DO ACTIVE</span>
+              <span className="sm:hidden">MOCK</span>
+            </div>
+          )}
 
           {/* Manual refresh button */}
           {onManualRefresh && (

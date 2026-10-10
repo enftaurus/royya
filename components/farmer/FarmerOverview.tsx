@@ -15,6 +15,7 @@ import {
   Sliders,
 } from 'lucide-react'
 import { LineChart, type DataPoint } from '@/components/LineChart'
+import { MockDOSimulator } from '@/components/MockDOSimulator'
 import type { SystemData } from '@/lib/api'
 
 interface FarmerOverviewProps {
@@ -29,6 +30,9 @@ interface FarmerOverviewProps {
   onUpdateMode: (mode: 'AUTO' | 'MANUAL') => Promise<void>
   onUpdateManualAerator: (state: 'ON' | 'OFF') => Promise<void>
   language: 'EN' | 'తెలుగు'
+  mockDoEnabled?: boolean
+  mockDoValue?: number
+  onUpdateMockDo?: (enabled: boolean, value?: number) => Promise<void>
 }
 
 export function FarmerOverview({
@@ -43,6 +47,9 @@ export function FarmerOverview({
   onUpdateMode,
   onUpdateManualAerator,
   language,
+  mockDoEnabled = false,
+  mockDoValue = 5.5,
+  onUpdateMockDo,
 }: FarmerOverviewProps) {
   const isTe = language === 'తెలుగు'
 
@@ -234,13 +241,19 @@ export function FarmerOverview({
         </div>
 
         {/* Predicted Dissolved Oxygen */}
-        <div className="rounded-2xl border border-[#dce5d9] bg-white p-5 shadow-xs">
+        <div className={`rounded-2xl border bg-white p-5 shadow-xs transition-all ${
+          mockDoEnabled ? 'border-[#8b5cf6]/50 ring-2 ring-[#8b5cf6]/20' : 'border-[#dce5d9]'
+        }`}>
           <div className="flex items-center justify-between mb-4">
-            <div className="rounded-xl bg-[#ecfdf5] p-2.5 text-[#059669]">
+            <div className={`rounded-xl p-2.5 ${
+              mockDoEnabled ? 'bg-[#f3e8ff] text-[#8b5cf6]' : 'bg-[#ecfdf5] text-[#059669]'
+            }`}>
               <Waves size={20} />
             </div>
-            <span className="text-[10px] font-bold text-[#788d81] uppercase tracking-wider">
-              ML Model
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              mockDoEnabled ? 'bg-[#8b5cf6] text-white font-black' : 'text-[#788d81]'
+            }`}>
+              {mockDoEnabled ? 'MOCK OVERRIDE' : 'ML Model'}
             </span>
           </div>
           <p className="text-xs text-[#788d81]">
@@ -303,6 +316,19 @@ export function FarmerOverview({
           </div>
         </div>
       </div>
+
+      {/* Mock DO Simulator & AUTO Mode Hysteresis Testing Unit */}
+      {onUpdateMockDo && (
+        <MockDOSimulator
+          mockDoEnabled={mockDoEnabled}
+          mockDoValue={mockDoValue}
+          onUpdateMockDo={onUpdateMockDo}
+          mode={data?.mode || 'AUTO'}
+          aeratorState={data?.aerator_state || 'OFF'}
+          onUpdateMode={onUpdateMode}
+          language={language}
+        />
+      )}
 
       {/* Aerator Control Panel Section */}
       <div className="rounded-3xl border border-[#1b433d] bg-[#153b35] p-6 sm:p-8 text-white shadow-md">

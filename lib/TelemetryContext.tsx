@@ -24,6 +24,9 @@ interface TelemetryContextType {
   language: 'EN' | 'తెలుగు'
   toggleLanguage: () => void
   setLanguage: (lang: 'EN' | 'తెలుగు') => void
+  mockDoEnabled: boolean
+  mockDoValue: number
+  updateMockDo: (enabled: boolean, value?: number) => Promise<void>
 }
 
 const TelemetryContext = createContext<TelemetryContextType | null>(null)

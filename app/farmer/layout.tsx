@@ -12,6 +12,7 @@ function FarmerShellInner({ children }: { children: React.ReactNode }) {
     refreshData,
     language,
     toggleLanguage,
+    mockDoEnabled,
   } = useSharedTelemetry()
 
   return (
@@ -23,6 +24,7 @@ function FarmerShellInner({ children }: { children: React.ReactNode }) {
       onManualRefresh={refreshData}
       language={language}
       onLanguageToggle={toggleLanguage}
+      mockDoEnabled={mockDoEnabled}
     >
       {children}
     </PortalShell>

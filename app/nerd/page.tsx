@@ -5,7 +5,18 @@ import { useSharedTelemetry } from '@/lib/TelemetryContext'
 import { NerdOverview } from '@/components/nerd/NerdOverview'
 
 export default function NerdOverviewPage() {
-  const { data, isLive, lastUpdated, tempHistory, turbidityHistory, refreshData } = useSharedTelemetry()
+  const {
+    data,
+    isLive,
+    lastUpdated,
+    tempHistory,
+    turbidityHistory,
+    refreshData,
+    mockDoEnabled,
+    mockDoValue,
+    updateMockDo,
+    updateMode,
+  } = useSharedTelemetry()
 
   return (
     <NerdOverview
@@ -15,6 +26,10 @@ export default function NerdOverviewPage() {
       tempHistory={tempHistory}
       turbidityHistory={turbidityHistory}
       onRefresh={refreshData}
+      mockDoEnabled={mockDoEnabled}
+      mockDoValue={mockDoValue}
+      onUpdateMockDo={updateMockDo}
+      onUpdateMode={updateMode}
     />
   )
 }

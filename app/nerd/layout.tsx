@@ -5,7 +5,7 @@ import { TelemetryProvider, useSharedTelemetry } from '@/lib/TelemetryContext'
 import { PortalShell } from '@/components/PortalShell'
 
 function NerdShellInner({ children }: { children: React.ReactNode }) {
-  const { isLive, lastUpdated, isReconnecting, refreshData } = useSharedTelemetry()
+  const { isLive, lastUpdated, isReconnecting, refreshData, mockDoEnabled } = useSharedTelemetry()
 
   return (
     <PortalShell
@@ -14,6 +14,7 @@ function NerdShellInner({ children }: { children: React.ReactNode }) {
       lastUpdated={lastUpdated}
       isReconnecting={isReconnecting}
       onManualRefresh={refreshData}
+      mockDoEnabled={mockDoEnabled}
     >
       {children}
     </PortalShell>

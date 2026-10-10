@@ -5,6 +5,7 @@ import {
   getSystemData,
   setAeratorMode,
   setManualAerator,
+  setMockDO,
   type SystemData,
   ApiError,
 } from './api'
@@ -13,7 +14,7 @@ import type { DataPoint } from '@/components/LineChart'
 export interface TelemetryLog {
   id: string
   timestamp: string
-  type: 'POLL' | 'MODE_CHANGE' | 'MANUAL_RELAY' | 'ERROR' | 'HEALTH_CHECK'
+  type: 'POLL' | 'MODE_CHANGE' | 'MANUAL_RELAY' | 'ERROR' | 'HEALTH_CHECK' | 'MOCK_DO'
   message: string
   status: 'SUCCESS' | 'ERROR' | 'INFO'
   details?: Record<string, unknown>
@@ -73,6 +74,10 @@ export function useTelemetry(pollingIntervalMs = 3000) {
     message: string
   } | null>(null)
 
+  const [mockDoEnabled, setMockDoEnabled] = useState<boolean>(false)
+  const [mockDoValue, setMockDoValue] = useState<number>(5.5)
+  const mockDoRef = useRef<{ enabled: boolean; value: number }>({ enabled: false, value: 5.5 })
+
   const isMounted = useRef(true)
 
   const fetchData = useCallback(async (isManualTrigger = false) => {
@@ -88,7 +93,29 @@ export function useTelemetry(pollingIntervalMs = 3000) {
         second: '2-digit',
       })
 
-      setData(result)
+      let effectiveDo = result.dissolved_oxygen
+      let effectiveAerator = result.aerator_state
+      const isMockActive = mockDoRef.current.enabled || Boolean(result.mock_do_enabled)
+
+      if (mockDoRef.current.enabled) {
+        effectiveDo = mockDoRef.current.value
+        if (result.mode === 'AUTO') {
+          if (effectiveDo < 5.0) {
+            effectiveAerator = 'ON'
+          } else if (effectiveDo > 6.0) {
+            effectiveAerator = 'OFF'
+          }
+        }
+      }
+
+      const mergedData: SystemData = {
+        ...result,
+        dissolved_oxygen: effectiveDo,
+        aerator_state: effectiveAerator,
+        mock_do_enabled: isMockActive,
+      }
+
+      setData(mergedData)
       setIsLive(true)
       setIsLoading(false)
       setIsReconnecting(false)
@@ -98,7 +125,7 @@ export function useTelemetry(pollingIntervalMs = 3000) {
       // Append to rolling history
       const newTempPoint: DataPoint = { timestamp: timeStr, value: result.temperature }
       const newTurbPoint: DataPoint = { timestamp: timeStr, value: result.turbidity }
-      const newDoPoint: DataPoint = { timestamp: timeStr, value: result.dissolved_oxygen }
+      const newDoPoint: DataPoint = { timestamp: timeStr, value: effectiveDo }
 
       globalTempHistory = [...globalTempHistory, newTempPoint].slice(-MAX_HISTORY)
       globalTurbidityHistory = [...globalTurbidityHistory, newTurbPoint].slice(-MAX_HISTORY)
@@ -239,6 +266,58 @@ export function useTelemetry(pollingIntervalMs = 3000) {
     }
   }
 
+  // Mock DO simulation control
+  const updateMockDo = async (enabled: boolean, value?: number) => {
+    const targetValue = value !== undefined ? Number(value.toFixed(2)) : mockDoValue
+    mockDoRef.current = { enabled, value: targetValue }
+    setMockDoEnabled(enabled)
+    if (value !== undefined) setMockDoValue(targetValue)
+
+    // Compute hysteresis locally for immediate 0ms responsiveness
+    let nextAeratorState = data?.aerator_state || 'OFF'
+    if (data?.mode === 'AUTO') {
+      if (targetValue < 5.0) {
+        nextAeratorState = 'ON'
+      } else if (targetValue > 6.0) {
+        nextAeratorState = 'OFF'
+      }
+    }
+
+    if (data) {
+      setData({
+        ...data,
+        dissolved_oxygen: targetValue,
+        aerator_state: nextAeratorState,
+        mock_do_enabled: enabled,
+      })
+    }
+
+    const timeStr = new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+
+    const newDoPoint: DataPoint = { timestamp: timeStr, value: targetValue }
+    globalDoHistory = [...globalDoHistory, newDoPoint].slice(-MAX_HISTORY)
+    setDoHistory(globalDoHistory)
+
+    addLog({
+      timestamp: timeStr,
+      type: 'MOCK_DO',
+      message: `Mock DO simulation ${enabled ? 'ENABLED' : 'DISABLED'} -> DO=${targetValue.toFixed(2)} mg/L (AUTO Relay: ${nextAeratorState})`,
+      status: 'INFO',
+    })
+
+    // Sync with FastAPI backend
+    try {
+      const res = await setMockDO(enabled, targetValue)
+      setData((prev) => (prev ? { ...prev, ...res } : prev))
+    } catch {
+      // If backend is offline, local simulation state continues seamlessly
+    }
+  }
+
   const dismissFeedback = () => setFeedback(null)
 
   return {
@@ -256,6 +335,10 @@ export function useTelemetry(pollingIntervalMs = 3000) {
     dismissFeedback,
     updateMode,
     updateManualAerator,
+    mockDoEnabled,
+    mockDoValue,
+    updateMockDo,
     refreshData: () => fetchData(true),
   }
 }
+
